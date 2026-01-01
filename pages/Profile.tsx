@@ -2,7 +2,13 @@ import React from 'react';
 import { useLanguage, useAuth } from '../App';
 import LanguageToggle from '../components/LanguageToggle';
 import { SKILL_LABELS } from '../constants';
-import { LogOut, Award, Star, Settings, Shield } from 'lucide-react';
+import { 
+  IconLogOut, 
+  IconStar, 
+  IconSettings,
+  IconCalendar,
+  IconEvents
+} from '../components/AppIcons';
 
 const ProfilePage: React.FC = () => {
   const { t, locale } = useLanguage();
@@ -34,7 +40,7 @@ const ProfilePage: React.FC = () => {
             <p className="text-gray-500 text-sm mb-4">{user.email}</p>
 
             <div className="flex items-center space-x-2 bg-yellow-50 border border-yellow-100 text-yellow-800 px-4 py-1.5 rounded-full text-sm font-bold">
-              <Star size={16} className="fill-current text-yellow-500" />
+              <IconStar size={18} filled className="text-yellow-500" />
               <span>{user.rating.toFixed(1)} {t.rating}</span>
             </div>
          </div>
@@ -44,15 +50,15 @@ const ProfilePage: React.FC = () => {
         {/* Stats Section - Mocked */}
         <div className="grid grid-cols-2 gap-4">
            <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center">
-             <div className="w-10 h-10 bg-primary-50 rounded-full flex items-center justify-center mb-2">
-                <span className="text-xl">📅</span>
+             <div className="w-10 h-10 bg-primary-50 rounded-full flex items-center justify-center mb-2 text-primary-600">
+                <IconCalendar size={24} />
              </div>
              <div className="text-2xl font-bold text-gray-900">12</div>
              <div className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">{t.myBookings}</div>
            </div>
            <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center">
-             <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center mb-2">
-                <span className="text-xl">⚽</span>
+             <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center mb-2 text-green-600">
+                <IconEvents size={24} />
              </div>
              <div className="text-2xl font-bold text-gray-900">5</div>
              <div className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">{t.myEvents}</div>
@@ -63,7 +69,7 @@ const ProfilePage: React.FC = () => {
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
            <div className="p-4 border-b border-gray-50 flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                 <div className="bg-gray-100 p-2 rounded-lg"><Settings size={18} className="text-gray-600"/></div>
+                 <div className="bg-gray-100 p-2 rounded-lg"><IconSettings size={20} className="text-gray-600"/></div>
                  <span className="font-bold text-gray-700">{t.settings}</span>
               </div>
            </div>
@@ -78,7 +84,7 @@ const ProfilePage: React.FC = () => {
           onClick={logout}
           className="w-full flex items-center justify-center space-x-2 py-4 text-red-500 font-bold bg-white border border-red-100 rounded-2xl hover:bg-red-50 transition-colors shadow-sm"
         >
-          <LogOut size={18} />
+          <IconLogOut size={20} />
           <span>{t.logout}</span>
         </button>
         

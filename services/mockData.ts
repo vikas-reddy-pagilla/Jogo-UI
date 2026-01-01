@@ -27,13 +27,14 @@ export const MOCK_VENUES: Venue[] = [
     address: 'Av. Atlântica, Rio de Janeiro',
     rating: 4.8,
     imageUrl: 'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?auto=format&fit=crop&q=80&w=400',
-    sports: ['football', 'volleyball'],
+    sports: ['football', 'beach_volleyball', 'beach_tennis'],
     pricePerHour: 150,
     distanceKm: 2.5,
     courts: [
-      { id: 'c1', name: 'Quadra 1 (Areia)', sport: 'volleyball' },
+      { id: 'c1', name: 'Quadra 1 (Areia)', sport: 'beach_volleyball' },
       { id: 'c2', name: 'Quadra 2 (Sintético)', sport: 'football' },
-      { id: 'c3', name: 'Quadra 3 (Sintético)', sport: 'football' }
+      { id: 'c3', name: 'Quadra 3 (Sintético)', sport: 'football' },
+      { id: 'c8', name: 'Arena Beach Tennis', sport: 'beach_tennis' }
     ]
   },
   {
@@ -42,12 +43,13 @@ export const MOCK_VENUES: Venue[] = [
     address: 'Jardins, São Paulo',
     rating: 4.9,
     imageUrl: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?auto=format&fit=crop&q=80&w=400',
-    sports: ['tennis'],
+    sports: ['tennis', 'badminton'],
     pricePerHour: 200,
     distanceKm: 5.0,
     courts: [
       { id: 'c4', name: 'Quadra Central (Saibro)', sport: 'tennis' },
-      { id: 'c5', name: 'Quadra Coberta', sport: 'tennis' }
+      { id: 'c5', name: 'Quadra Coberta', sport: 'tennis' },
+      { id: 'c9', name: 'Quadra Badminton 1', sport: 'badminton' }
     ]
   },
   {
@@ -56,12 +58,13 @@ export const MOCK_VENUES: Venue[] = [
     address: 'Vila Mariana, São Paulo',
     rating: 4.2,
     imageUrl: 'https://images.unsplash.com/photo-1546519638-68e109498ee3?auto=format&fit=crop&q=80&w=400',
-    sports: ['basketball', 'football'],
+    sports: ['basketball', 'football', 'volleyball'],
     pricePerHour: 80,
     distanceKm: 1.2,
     courts: [
       { id: 'c6', name: 'Quadra Externa 1', sport: 'basketball' },
-      { id: 'c7', name: 'Quadra Externa 2', sport: 'football' }
+      { id: 'c7', name: 'Quadra Externa 2', sport: 'football' },
+      { id: 'c10', name: 'Quadra Poliesportiva', sport: 'volleyball' }
     ]
   },
 ];
@@ -99,6 +102,38 @@ export const MOCK_EVENTS: GameEvent[] = [
     isPrivate: false,
     status: 'open',
   },
+  {
+    id: 'e3',
+    title: 'Beach Tennis Fun',
+    sport: 'beach_tennis',
+    skillLevel: SkillLevel.BEGINNER,
+    venueId: 'v1',
+    venueName: 'Arena Copacabana',
+    date: new Date(Date.now() + 200000000).toISOString(),
+    hostId: 'u4',
+    hostName: 'Mariana L.',
+    maxPlayers: 4,
+    currentPlayers: 3,
+    joinedPlayerIds: ['u4', 'u2'],
+    isPrivate: false,
+    status: 'open',
+  },
+  {
+    id: 'e4',
+    title: 'Badminton Duplas',
+    sport: 'badminton',
+    skillLevel: SkillLevel.ADVANCED,
+    venueId: 'v2',
+    venueName: 'São Paulo Tennis Club',
+    date: new Date(Date.now() + 300000000).toISOString(),
+    hostId: 'u1',
+    hostName: 'João Silva',
+    maxPlayers: 4,
+    currentPlayers: 1,
+    joinedPlayerIds: ['u1'],
+    isPrivate: false,
+    status: 'open',
+  }
 ];
 
 export const MOCK_BOOKINGS: Booking[] = [

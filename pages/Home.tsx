@@ -3,7 +3,14 @@ import { useLanguage } from '../App';
 import { Api } from '../services/api';
 import { Venue, GameEvent } from '../types';
 import { SPORTS, SKILL_LABELS } from '../constants';
-import { MapPin, Star, Search, ArrowRight, Calendar, Users, Bell } from 'lucide-react';
+import { 
+  IconMapPin, 
+  IconStar, 
+  IconSearch, 
+  IconArrowRight, 
+  IconUsers, 
+  IconBell 
+} from '../components/AppIcons';
 import { Link } from 'react-router-dom';
 
 const HomePage: React.FC = () => {
@@ -53,7 +60,7 @@ const HomePage: React.FC = () => {
                className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100 relative hover:bg-gray-100 transition-colors active:scale-95"
                aria-label="Notifications"
              >
-               <Bell size={20} className="text-gray-700" />
+               <IconBell size={22} className="text-gray-700" />
                {hasNotifications && (
                  <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
                )}
@@ -71,7 +78,9 @@ const HomePage: React.FC = () => {
             placeholder={t.searchPlaceholder}
             className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-gray-50 border border-transparent text-gray-900 placeholder-gray-400 group-hover:bg-white group-hover:border-gray-200 focus:bg-white focus:border-primary-500 focus:ring-4 focus:ring-primary-50 transition-all outline-none"
           />
-          <Search className="absolute left-4 top-3.5 text-gray-400 group-hover:text-primary-500 transition-colors" size={20} />
+          <div className="absolute left-4 top-3.5 text-gray-400 group-hover:text-primary-500 transition-colors">
+            <IconSearch size={22} />
+          </div>
         </div>
       </header>
 
@@ -88,20 +97,23 @@ const HomePage: React.FC = () => {
           >
             All
           </button>
-          {SPORTS.map(sport => (
-            <button
-              key={sport.id}
-              onClick={() => setActiveSport(sport.id)}
-              className={`flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-bold transition-all flex items-center space-x-2 ${
-                activeSport === sport.id 
-                  ? 'bg-gray-900 text-white shadow-lg shadow-gray-200 scale-105' 
-                  : 'bg-white text-gray-600 border border-gray-100 hover:border-gray-300'
-              }`}
-            >
-              <span className="mr-1">{sport.icon}</span>
-              <span>{locale === 'pt-BR' ? sport.namePt : sport.nameEn}</span>
-            </button>
-          ))}
+          {SPORTS.map(sport => {
+            const SportIcon = sport.icon;
+            return (
+              <button
+                key={sport.id}
+                onClick={() => setActiveSport(sport.id)}
+                className={`flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-bold transition-all flex items-center space-x-2 ${
+                  activeSport === sport.id 
+                    ? 'bg-gray-900 text-white shadow-lg shadow-gray-200 scale-105' 
+                    : 'bg-white text-gray-600 border border-gray-100 hover:border-gray-300'
+                }`}
+              >
+                <span className="mr-1"><SportIcon size={20} /></span>
+                <span>{locale === 'pt-BR' ? sport.namePt : sport.nameEn}</span>
+              </button>
+            )
+          })}
         </div>
 
         {/* Nearby Venues */}
@@ -109,7 +121,7 @@ const HomePage: React.FC = () => {
           <div className="flex justify-between items-center mb-5 px-1">
             <h2 className="text-xl font-bold text-gray-900">{t.nearbyVenues}</h2>
             <Link to="/book" className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-primary-50 hover:text-primary-600 transition-colors">
-               <ArrowRight size={16} strokeWidth={3} />
+               <IconArrowRight size={18} />
             </Link>
           </div>
 
@@ -124,23 +136,27 @@ const HomePage: React.FC = () => {
                   <div className="relative h-40 overflow-hidden">
                     <img src={venue.imageUrl} alt={venue.name} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" />
                     <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-full text-xs font-bold flex items-center shadow-sm">
-                       <Star size={12} className="text-yellow-500 fill-current mr-1" />
+                       <IconStar size={14} filled className="text-yellow-500 mr-1" />
                        {venue.rating}
                     </div>
                   </div>
                   <div className="p-4">
                     <h3 className="font-bold text-gray-900 text-lg truncate mb-1">{venue.name}</h3>
                     <div className="flex items-center text-gray-500 text-xs mb-3">
-                      <MapPin size={12} className="mr-1" />
+                      <IconMapPin size={14} className="mr-1" />
                       <span className="truncate">{venue.address}</span>
                     </div>
                     <div className="flex justify-between items-center border-t border-gray-50 pt-3">
                         <div className="flex -space-x-1.5">
-                           {venue.sports.slice(0, 3).map(s => (
-                             <span key={s} className="w-6 h-6 rounded-full bg-gray-50 border-2 border-white flex items-center justify-center text-[10px] shadow-sm">
-                               {SPORTS.find(sp => sp.id === s)?.icon}
-                             </span>
-                           ))}
+                           {venue.sports.slice(0, 3).map(s => {
+                             const sportObj = SPORTS.find(sp => sp.id === s);
+                             const SportIcon = sportObj ? sportObj.icon : null;
+                             return (
+                               <span key={s} className="w-6 h-6 rounded-full bg-gray-50 border-2 border-white flex items-center justify-center text-[10px] shadow-sm text-gray-600">
+                                 {SportIcon && <SportIcon size={14} />}
+                               </span>
+                             )
+                           })}
                         </div>
                         <div className="flex flex-col text-right">
                            <span className="text-sm font-bold text-primary-600">{formatCurrency(venue.pricePerHour)}</span>
@@ -158,7 +174,7 @@ const HomePage: React.FC = () => {
           <div className="flex justify-between items-center mb-5 px-1">
             <h2 className="text-xl font-bold text-gray-900">{t.openGames}</h2>
             <Link to="/events" className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-primary-50 hover:text-primary-600 transition-colors">
-               <ArrowRight size={16} strokeWidth={3} />
+               <IconArrowRight size={18} />
             </Link>
           </div>
 
@@ -175,13 +191,14 @@ const HomePage: React.FC = () => {
                 const skillInfo = SKILL_LABELS[event.skillLevel];
                 const displaySkill = locale === 'pt-BR' ? skillInfo.pt : skillInfo.en;
                 const sport = SPORTS.find(s => s.id === event.sport);
+                const SportIcon = sport?.icon;
 
                 return (
                   <Link to="/events" key={event.id} className="block bg-white rounded-3xl p-5 shadow-[0_2px_15px_rgba(0,0,0,0.03)] border border-gray-50 active:scale-[0.99] transition-transform hover:border-primary-100">
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-2xl border border-gray-100">
-                          {sport?.icon}
+                        <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-2xl border border-gray-100 text-gray-700">
+                          {SportIcon && <SportIcon size={24} />}
                         </div>
                         <div>
                            <h3 className="font-bold text-gray-900 leading-tight">{event.title}</h3>

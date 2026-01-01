@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLanguage } from '../App';
-import { Globe } from 'lucide-react';
+import { IconGlobe } from './AppIcons';
 
 const LanguageToggle: React.FC = () => {
   const { locale, setLocale, t } = useLanguage();
@@ -8,7 +8,7 @@ const LanguageToggle: React.FC = () => {
   return (
     <div className="flex flex-col space-y-2 p-4 bg-gray-50 rounded-xl border border-gray-100">
       <div className="flex items-center space-x-2 text-gray-600 mb-2">
-        <Globe size={18} />
+        <IconGlobe size={20} />
         <span className="font-semibold text-sm">{t.language}</span>
       </div>
       <div className="grid grid-cols-2 gap-2">

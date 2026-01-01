@@ -1,4 +1,13 @@
 import { Locale, Translation, SkillLevel } from './types';
+import { 
+  IconFootball, 
+  IconTennis, 
+  IconBasketball, 
+  IconVolleyball, 
+  IconBadminton, 
+  IconBeachTennis,
+  IconGenericSport 
+} from './components/AppIcons';
 
 export const TRANSLATIONS: Record<Locale, Translation> = {
   'pt-BR': {
@@ -88,6 +97,15 @@ export const TRANSLATIONS: Record<Locale, Translation> = {
     verify: 'Verificar',
     resendCode: 'Reenviar Código',
     invalidCode: 'Código inválido (use 1234)',
+    reviewBooking: 'Revisar Reserva',
+    noSlotsAvailable: 'Sem horários disponíveis para hoje',
+    duration: 'Duração',
+    paymentMethod: 'Forma de Pagamento',
+    pix: 'PIX (Instantâneo)',
+    creditCard: 'Cartão de Crédito',
+    payAtVenue: 'Pagar no Local',
+    pay: 'Pagar',
+    checkout: 'Checkout',
   },
   'en': {
     welcome: 'Welcome to Jogo',
@@ -176,14 +194,26 @@ export const TRANSLATIONS: Record<Locale, Translation> = {
     verify: 'Verify',
     resendCode: 'Resend Code',
     invalidCode: 'Invalid code (try 1234)',
+    reviewBooking: 'Review Booking',
+    noSlotsAvailable: 'No slots available for today',
+    duration: 'Duration',
+    paymentMethod: 'Payment Method',
+    pix: 'PIX (Instant)',
+    creditCard: 'Credit Card',
+    payAtVenue: 'Pay at Venue',
+    pay: 'Pay',
+    checkout: 'Checkout',
   }
 };
 
 export const SPORTS = [
-  { id: 'football', namePt: 'Futebol', nameEn: 'Football', icon: '⚽' },
-  { id: 'tennis', namePt: 'Tênis', nameEn: 'Tennis', icon: '🎾' },
-  { id: 'basketball', namePt: 'Basquete', nameEn: 'Basketball', icon: '🏀' },
-  { id: 'volleyball', namePt: 'Vôlei', nameEn: 'Volleyball', icon: '🏐' },
+  { id: 'football', namePt: 'Futebol', nameEn: 'Football', icon: IconFootball },
+  { id: 'tennis', namePt: 'Tênis', nameEn: 'Tennis', icon: IconTennis },
+  { id: 'basketball', namePt: 'Basquete', nameEn: 'Basketball', icon: IconBasketball },
+  { id: 'volleyball', namePt: 'Vôlei', nameEn: 'Volleyball', icon: IconVolleyball },
+  { id: 'badminton', namePt: 'Badminton', nameEn: 'Badminton', icon: IconBadminton },
+  { id: 'beach_tennis', namePt: 'Beach Tennis', nameEn: 'Beach Tennis', icon: IconBeachTennis },
+  { id: 'beach_volleyball', namePt: 'Vôlei de Praia', nameEn: 'Beach Volleyball', icon: IconVolleyball },
 ];
 
 export const SKILL_LABELS: Record<SkillLevel, { pt: string; en: string; color: string; border: string }> = {

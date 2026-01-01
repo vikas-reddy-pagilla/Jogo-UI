@@ -177,4 +177,13 @@ export interface Translation {
   verify: string;
   resendCode: string;
   invalidCode: string;
+  reviewBooking: string;
+  noSlotsAvailable: string;
+  duration: string;
+  paymentMethod: string;
+  pix: string;
+  creditCard: string;
+  payAtVenue: string;
+  pay: string;
+  checkout: string;
 }

@@ -2,7 +2,15 @@ import React, { useState, useEffect, createContext, useContext, ReactNode } from
 import { HashRouter, Routes, Route, Navigate, useLocation, Link } from 'react-router-dom';
 import { TRANSLATIONS } from './constants';
 import { Locale, Translation, User } from './types';
-import { Home, Calendar, Trophy, User as UserIcon, PlusCircle, LayoutDashboard, CheckSquare, MessageCircle } from 'lucide-react';
+import { 
+  IconHome, 
+  IconBook, 
+  IconEvents, 
+  IconProfile, 
+  IconPlusCircle, 
+  IconDashboard, 
+  IconRequests 
+} from './components/AppIcons';
 
 // Pages
 import HomePage from './pages/Home';
@@ -150,16 +158,16 @@ const Layout: React.FC<LayoutProps> = ({ children, showFab }) => {
   const location = useLocation();
 
   const playerNav = [
-    { path: '/', icon: Home, label: t.home },
-    { path: '/book', icon: Calendar, label: t.book },
-    { path: '/events', icon: Trophy, label: t.events },
-    { path: '/profile', icon: UserIcon, label: t.profile },
+    { path: '/', icon: IconHome, label: t.home },
+    { path: '/book', icon: IconBook, label: t.book },
+    { path: '/events', icon: IconEvents, label: t.events },
+    { path: '/profile', icon: IconProfile, label: t.profile },
   ];
 
   const ownerNav = [
-    { path: '/', icon: LayoutDashboard, label: t.dashboard },
-    { path: '/requests', icon: CheckSquare, label: t.requests },
-    { path: '/profile', icon: UserIcon, label: t.profile },
+    { path: '/', icon: IconDashboard, label: t.dashboard },
+    { path: '/requests', icon: IconRequests, label: t.requests },
+    { path: '/profile', icon: IconProfile, label: t.profile },
   ];
 
   const navItems = user?.role === 'owner' ? ownerNav : playerNav;
@@ -178,7 +186,7 @@ const Layout: React.FC<LayoutProps> = ({ children, showFab }) => {
              to="/host"
              className="pointer-events-auto group bg-primary-600 text-white p-4 rounded-full shadow-xl hover:bg-primary-700 transition-all hover:scale-105 active:scale-95 flex items-center justify-center border-4 border-gray-50"
            >
-             <PlusCircle size={32} strokeWidth={2} />
+             <IconPlusCircle size={32} />
            </Link>
         </div>
       )}
@@ -198,7 +206,7 @@ const Layout: React.FC<LayoutProps> = ({ children, showFab }) => {
                 }`}
               >
                 <div className={`p-1 rounded-xl transition-all ${isActive ? 'bg-primary-50' : ''}`}>
-                  <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
+                  <Icon size={26} filled={isActive} className={isActive ? 'text-primary-600' : ''} />
                 </div>
                 <span className={`text-[10px] font-medium ${isActive ? 'font-bold' : ''}`}>{item.label}</span>
               </Link>

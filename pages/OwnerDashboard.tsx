@@ -2,7 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useLanguage } from '../App';
 import { Api } from '../services/api';
 import { BookingRequest } from '../types';
-import { CheckCircle, XCircle, Clock, Calendar, User } from 'lucide-react';
+import { 
+  IconCheck, 
+  IconClose, 
+  IconClock, 
+  IconCalendar, 
+  IconUser 
+} from '../components/AppIcons';
 
 const OwnerDashboardPage: React.FC = () => {
   const { t, locale } = useLanguage();
@@ -46,7 +52,7 @@ const OwnerDashboardPage: React.FC = () => {
                <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center space-x-3">
                      <div className="w-10 h-10 bg-primary-50 rounded-full flex items-center justify-center text-primary-600">
-                        <User size={20} />
+                        <IconUser size={24} />
                      </div>
                      <div>
                         <h3 className="font-bold text-gray-900">{req.userName}</h3>
@@ -64,11 +70,11 @@ const OwnerDashboardPage: React.FC = () => {
 
                <div className="bg-gray-50 p-3 rounded-xl space-y-2 mb-4">
                   <div className="flex items-center text-sm text-gray-700">
-                     <Calendar size={16} className="mr-2 text-gray-400" />
+                     <IconCalendar size={18} className="mr-2 text-gray-400" />
                      <span className="font-medium">{new Date(req.date).toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long'})}</span>
                   </div>
                   <div className="flex items-center text-sm text-gray-700">
-                     <Clock size={16} className="mr-2 text-gray-400" />
+                     <IconClock size={18} className="mr-2 text-gray-400" />
                      <span className="font-medium">{req.slot}</span>
                   </div>
                   <div className="text-xs text-gray-500 pl-6 pt-1 border-t border-gray-200 mt-2">
@@ -82,13 +88,13 @@ const OwnerDashboardPage: React.FC = () => {
                       onClick={() => handleAction(req.id, 'decline')}
                       className="flex-1 py-3 border border-gray-200 rounded-xl font-bold text-gray-600 hover:bg-gray-50 flex items-center justify-center"
                     >
-                      <XCircle size={18} className="mr-2" /> {t.decline}
+                      <IconClose size={20} className="mr-2" /> {t.decline}
                     </button>
                     <button 
                       onClick={() => handleAction(req.id, 'approve')}
                       className="flex-1 py-3 bg-secondary text-white rounded-xl font-bold shadow-md hover:brightness-110 flex items-center justify-center"
                     >
-                      <CheckCircle size={18} className="mr-2" /> {t.approve}
+                      <IconCheck size={20} className="mr-2" /> {t.approve}
                     </button>
                  </div>
                )}

@@ -2,7 +2,18 @@ import React, { useState } from 'react';
 import { useLanguage } from '../App';
 import { MOCK_VENUES, MOCK_BOOKINGS } from '../services/mockData';
 import { Api } from '../services/api';
-import { CheckCircle, Calendar as CalendarIcon, Clock, MapPin, ChevronLeft, ChevronRight, Info } from 'lucide-react';
+import { 
+  IconSuccess, 
+  IconCalendar, 
+  IconClock, 
+  IconMapPin, 
+  IconChevronLeft, 
+  IconCourt, 
+  IconWarning, 
+  IconCreditCard, 
+  IconQrCode, 
+  IconStore 
+} from '../components/AppIcons';
 import { SPORTS } from '../constants';
 import { Venue } from '../types';
 import { Link } from 'react-router-dom';
@@ -10,7 +21,7 @@ import { Link } from 'react-router-dom';
 const BookPage: React.FC = () => {
   const { t, locale, formatCurrency } = useLanguage();
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1); 
-  // 1: Sport, 2: Venue, 3: Date/Time/Duration, 4: Confirm
+  // 1: Sport, 2: Venue, 3: Date/Time/Duration, 4: Checkout/Confirm
   
   const [selectedSport, setSelectedSport] = useState<string | null>(null);
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
@@ -18,6 +29,7 @@ const BookPage: React.FC = () => {
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [selectedCourt, setSelectedCourt] = useState<string | null>(null);
   const [duration, setDuration] = useState<number>(1); // 1 = 1h, 1.5 = 1h30, 2 = 2h
+  const [paymentMethod, setPaymentMethod] = useState<'pix' | 'credit_card' | 'venue'>('pix');
   
   const [bookingLoading, setBookingLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -27,23 +39,54 @@ const BookPage: React.FC = () => {
     ? MOCK_VENUES.filter(v => v.sports.includes(selectedSport))
     : MOCK_VENUES;
 
-  // Expanded start times for a full day
-  const startTimes = [
+  // Base start times
+  const baseStartTimes = [
     '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', 
     '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', 
     '19:00', '20:00', '21:00', '22:00'
   ];
   
+  // Date Logic: Generate Next 7 Days with Local Strings
   const dates = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() + i);
+    
+    // Construct local YYYY-MM-DD to match selectedDate state comparison
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const localIso = `${year}-${month}-${day}`;
+
     return {
-      iso: d.toISOString().split('T')[0],
+      iso: localIso,
       weekday: d.toLocaleDateString(locale, { weekday: 'short' }).toUpperCase(),
       day: d.getDate(),
       month: d.toLocaleDateString(locale, { month: 'short' })
     };
   });
+
+  // Calculate available times based on Today
+  const getFilteredStartTimes = () => {
+    if (!selectedDate) return baseStartTimes;
+
+    const now = new Date();
+    const todayYear = now.getFullYear();
+    const todayMonth = String(now.getMonth() + 1).padStart(2, '0');
+    const todayDay = String(now.getDate()).padStart(2, '0');
+    const todayIso = `${todayYear}-${todayMonth}-${todayDay}`;
+
+    if (selectedDate === todayIso) {
+      const currentHour = now.getHours();
+      return baseStartTimes.filter(time => {
+        const [h] = time.split(':').map(Number);
+        return h > currentHour;
+      });
+    }
+
+    return baseStartTimes;
+  };
+
+  const startTimes = getFilteredStartTimes();
 
   const getEndTime = (start: string, durationHours: number) => {
     const [h, m] = start.split(':').map(Number);
@@ -54,7 +97,6 @@ const BookPage: React.FC = () => {
   };
 
   const isSlotBooked = (venueId: string, courtName: string, dateIso: string, startTime: string, durationHours: number) => {
-    // Convert time string to minutes for comparison
     const toMinutes = (time: string) => {
       const [h, m] = time.split(':').map(Number);
       return h * 60 + m;
@@ -66,15 +108,13 @@ const BookPage: React.FC = () => {
     return MOCK_BOOKINGS.some(b => {
       if (b.venueId !== venueId) return false;
       if (b.courtName !== courtName) return false;
-      // Compare dates (assuming bookings are ISO strings)
-      if (b.date.split('T')[0] !== dateIso) return false;
+      // Simple date string compare works if both are YYYY-MM-DD
+      if (!b.date.startsWith(dateIso)) return false; 
 
-      // Check time overlap
       const [bStartStr, bEndStr] = b.slot.split(' - ');
       const bStartMin = toMinutes(bStartStr);
       const bEndMin = toMinutes(bEndStr);
 
-      // Overlap condition: (StartA < EndB) and (EndA > StartB)
       return startMin < bEndMin && endMin > bStartMin;
     });
   };
@@ -82,7 +122,6 @@ const BookPage: React.FC = () => {
   const handleBook = async () => {
     if (!selectedVenue || !selectedDate || !selectedSlot || !selectedCourt || !selectedSport) return;
     setBookingLoading(true);
-    // In real app, pass duration/endTime
     await Api.bookVenue(selectedVenue.id, selectedCourt, selectedDate, selectedSlot, selectedSport);
     setBookingLoading(false);
     setSuccess(true);
@@ -90,9 +129,9 @@ const BookPage: React.FC = () => {
 
   if (success) {
     return (
-      <div className="h-full min-h-screen flex flex-col items-center justify-center p-8 bg-white text-center">
+      <div className="h-full min-h-screen flex flex-col items-center justify-center p-8 bg-white text-center z-50 relative">
         <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mb-6 animate-bounce border-4 border-green-100">
-          <CheckCircle className="text-green-600 w-12 h-12" strokeWidth={2.5} />
+          <IconSuccess className="text-green-600" size={48} />
         </div>
         <h2 className="text-3xl font-bold text-gray-900 mb-3">{t.success}</h2>
         <p className="text-gray-500 mb-10 text-lg leading-relaxed">{t.confirmBooking}</p>
@@ -104,16 +143,16 @@ const BookPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col pb-24">
       {/* Custom Header */}
-      <div className="bg-white px-4 py-4 sticky top-0 z-20 border-b border-gray-100/50 backdrop-blur-md bg-white/90">
+      <div className="bg-white px-4 py-4 sticky top-0 z-30 border-b border-gray-100/50 backdrop-blur-md bg-white/90">
         <div className="flex items-center justify-between mb-4">
            {step > 1 && (
              <button onClick={() => setStep(prev => prev - 1 as any)} className="p-2 -ml-2 text-gray-600 rounded-full hover:bg-gray-100">
-               <ChevronLeft />
+               <IconChevronLeft />
              </button>
            )}
-           <h1 className="text-lg font-bold text-gray-900 flex-1 text-center pr-8">{t.book}</h1>
+           <h1 className="text-lg font-bold text-gray-900 flex-1 text-center pr-8">{step === 4 ? t.checkout : t.book}</h1>
         </div>
         
         {/* Progress Bar */}
@@ -128,23 +167,28 @@ const BookPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex-1 p-4 overflow-y-auto max-w-lg mx-auto w-full">
+      <div className="flex-1 p-4 max-w-lg mx-auto w-full">
         
         {/* Step 1: Select Sport */}
         {step === 1 && (
           <div className="animate-in fade-in slide-in-from-right-4 duration-300">
             <h2 className="text-2xl font-bold mb-6 text-gray-900">{t.selectSport}</h2>
             <div className="grid grid-cols-2 gap-4">
-              {SPORTS.map(sport => (
-                <button
-                  key={sport.id}
-                  onClick={() => { setSelectedSport(sport.id); setStep(2); }}
-                  className="group bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:border-primary-500 hover:shadow-lg transition-all flex flex-col items-center justify-center text-center aspect-square"
-                >
-                  <span className="text-5xl mb-4 transform group-hover:scale-110 transition-transform">{sport.icon}</span>
-                  <span className="font-bold text-gray-800 text-lg group-hover:text-primary-600 transition-colors">{locale === 'pt-BR' ? sport.namePt : sport.nameEn}</span>
-                </button>
-              ))}
+              {SPORTS.map(sport => {
+                const SportIcon = sport.icon;
+                return (
+                  <button
+                    key={sport.id}
+                    onClick={() => { setSelectedSport(sport.id); setStep(2); }}
+                    className="group bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:border-primary-500 hover:shadow-lg transition-all flex flex-col items-center justify-center text-center aspect-square"
+                  >
+                    <span className="mb-4 transform group-hover:scale-110 transition-transform text-gray-800">
+                      <SportIcon size={48} />
+                    </span>
+                    <span className="font-bold text-gray-800 text-lg group-hover:text-primary-600 transition-colors">{locale === 'pt-BR' ? sport.namePt : sport.nameEn}</span>
+                  </button>
+                )
+              })}
             </div>
           </div>
         )}
@@ -172,7 +216,7 @@ const BookPage: React.FC = () => {
                   <div className="flex-1 py-1">
                     <h3 className="font-bold text-gray-900 text-lg leading-tight mb-1">{v.name}</h3>
                     <div className="flex items-center text-xs text-gray-500 mb-3">
-                       <MapPin size={14} className="mr-1 text-gray-400"/> {v.address}
+                       <IconMapPin size={16} className="mr-1 text-gray-400"/> {v.address}
                     </div>
                     <div className="flex justify-between items-center border-t border-gray-50 pt-2">
                        <span className="text-xs font-semibold text-gray-500 bg-gray-50 px-2 py-0.5 rounded">
@@ -191,7 +235,7 @@ const BookPage: React.FC = () => {
 
         {/* Step 3: Date & Time & Duration */}
         {step === 3 && selectedVenue && (
-          <div className="animate-in fade-in slide-in-from-right-4 duration-300 pb-24">
+          <div className="animate-in fade-in slide-in-from-right-4 duration-300 pb-20">
              <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-6 flex items-center justify-between">
                 <div>
                   <h2 className="font-bold text-gray-900">{selectedVenue.name}</h2>
@@ -206,7 +250,7 @@ const BookPage: React.FC = () => {
              {/* Duration Selector */}
              <div className="mb-8">
                <label className="text-sm font-bold text-gray-700 mb-3 block flex items-center">
-                 <Clock size={16} className="mr-2 text-primary-600"/> Duração
+                 <IconClock size={18} className="mr-2 text-primary-600"/> {t.duration}
                </label>
                <div className="flex bg-gray-100 p-1 rounded-xl">
                  {[1, 1.5, 2].map(hrs => (
@@ -228,13 +272,13 @@ const BookPage: React.FC = () => {
              {/* Date Picker */}
              <div className="mb-8">
                 <label className="text-sm font-bold text-gray-700 mb-3 block flex items-center">
-                   <CalendarIcon size={16} className="mr-2 text-primary-600"/> {t.date}
+                   <IconCalendar size={18} className="mr-2 text-primary-600"/> {t.date}
                 </label>
                 <div className="flex space-x-3 overflow-x-auto pb-4 no-scrollbar">
                   {dates.map(d => (
                     <button
                       key={d.iso}
-                      onClick={() => setSelectedDate(d.iso)}
+                      onClick={() => { setSelectedDate(d.iso); setSelectedSlot(null); }}
                       className={`flex-shrink-0 w-[4.5rem] h-20 rounded-2xl flex flex-col items-center justify-center border-2 transition-all ${
                         selectedDate === d.iso
                           ? 'bg-primary-600 text-white border-primary-600 shadow-lg shadow-primary-200 scale-105'
@@ -257,65 +301,51 @@ const BookPage: React.FC = () => {
                          <span className="w-1.5 h-1.5 rounded-full bg-secondary mr-2"></span>
                          {court.name}
                       </h3>
-                      <div className="grid grid-cols-2 gap-3">
-                        {startTimes.map(startTime => {
-                          const endTime = getEndTime(startTime, duration);
-                          const isBooked = isSlotBooked(selectedVenue.id, court.name, selectedDate!, startTime, duration);
-                          const isSelected = selectedSlot === startTime && selectedCourt === court.id;
-                          
-                          return (
-                            <button
-                              key={startTime}
-                              disabled={isBooked}
-                              onClick={() => { setSelectedSlot(startTime); setSelectedCourt(court.id); }}
-                              className={`py-3 px-2 rounded-xl text-xs font-bold transition-all border flex items-center justify-center ${
-                                isSelected 
-                                  ? 'bg-primary-600 text-white border-primary-600 shadow-md ring-2 ring-primary-100 scale-[1.02]' 
-                                  : isBooked
-                                    ? 'bg-gray-50 text-gray-400 border-gray-100 cursor-not-allowed decoration-slice'
-                                    : 'bg-white text-gray-700 border-gray-100 hover:border-primary-200 hover:shadow-sm'
-                              }`}
-                            >
-                               {startTime} - {endTime}
-                               {isBooked && <span className="ml-2 text-[10px] bg-gray-200 px-1 rounded text-gray-500 font-normal">Booked</span>}
-                            </button>
-                          );
-                        })}
-                      </div>
+                      
+                      {startTimes.length === 0 ? (
+                        <div className="p-4 bg-orange-50 text-orange-700 rounded-xl text-sm font-bold flex items-center justify-center border border-orange-100">
+                           <IconWarning size={20} className="mr-2" />
+                           {t.noSlotsAvailable}
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-3">
+                          {startTimes.map(startTime => {
+                            const endTime = getEndTime(startTime, duration);
+                            const isBooked = isSlotBooked(selectedVenue.id, court.name, selectedDate!, startTime, duration);
+                            const isSelected = selectedSlot === startTime && selectedCourt === court.id;
+                            
+                            return (
+                              <button
+                                key={startTime}
+                                disabled={isBooked}
+                                onClick={() => { setSelectedSlot(startTime); setSelectedCourt(court.id); }}
+                                className={`py-3 px-2 rounded-xl text-xs font-bold transition-all border flex items-center justify-center ${
+                                  isSelected 
+                                    ? 'bg-primary-600 text-white border-primary-600 shadow-md ring-2 ring-primary-100 scale-[1.02]' 
+                                    : isBooked
+                                      ? 'bg-gray-50 text-gray-400 border-gray-100 cursor-not-allowed decoration-slice'
+                                      : 'bg-white text-gray-700 border-gray-100 hover:border-primary-200 hover:shadow-sm'
+                                }`}
+                              >
+                                 {startTime} - {endTime}
+                                 {isBooked && <span className="ml-2 text-[10px] bg-gray-200 px-1 rounded text-gray-500 font-normal">Booked</span>}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
                    </div>
                 ))}
              </div>
           </div>
         )}
 
-        {/* Floating Footer Step 3 */}
-        {step === 3 && selectedSlot && (
-          <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-30 max-w-md mx-auto">
-             <div className="flex justify-between items-center mb-3 px-1">
-                <div>
-                   <p className="text-xs text-gray-500 font-medium">{t.total}</p>
-                   <p className="text-xl font-bold text-gray-900">{formatCurrency((selectedVenue?.pricePerHour || 0) * duration)}</p>
-                </div>
-                <div className="text-right">
-                   <p className="text-xs text-gray-500 font-medium">{t.time}</p>
-                   <p className="text-sm font-bold text-gray-900">{selectedSlot} - {getEndTime(selectedSlot!, duration)}</p>
-                </div>
-             </div>
-             <button 
-               onClick={() => setStep(4)}
-               className="w-full bg-primary-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-primary-200 hover:shadow-primary-300 active:scale-[0.98] transition-all"
-             >
-               {t.submit}
-             </button>
-          </div>
-        )}
-
-        {/* Step 4: Confirm */}
+        {/* Step 4: Checkout */}
         {step === 4 && selectedVenue && (
-          <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-             <h2 className="text-2xl font-bold mb-6 text-gray-900">{t.confirmBooking}</h2>
+          <div className="animate-in fade-in slide-in-from-right-4 duration-300 pb-20">
              
-             <div className="bg-white p-6 rounded-3xl shadow-lg shadow-gray-100 border border-gray-100 mb-6">
+             {/* Booking Summary Card */}
+             <div className="bg-white p-6 rounded-3xl shadow-lg shadow-gray-100 border border-gray-100 mb-8">
                 <div className="flex items-center space-x-4 border-b border-gray-50 pb-6 mb-6">
                    <div className="w-16 h-16 rounded-2xl bg-gray-100 overflow-hidden">
                       <img src={selectedVenue.imageUrl} className="w-full h-full object-cover" alt=""/>
@@ -329,7 +359,7 @@ const BookPage: React.FC = () => {
                 <div className="space-y-4">
                    <div className="flex justify-between items-center">
                       <div className="flex items-center text-gray-500 text-sm">
-                         <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center mr-3 text-gray-400"><CalendarIcon size={14}/></div>
+                         <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center mr-3 text-gray-400"><IconCalendar size={18}/></div>
                          {t.date}
                       </div>
                       <span className="font-bold text-gray-900">{new Date(selectedDate!).toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long'})}</span>
@@ -337,7 +367,7 @@ const BookPage: React.FC = () => {
                    
                    <div className="flex justify-between items-center">
                       <div className="flex items-center text-gray-500 text-sm">
-                         <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center mr-3 text-gray-400"><Clock size={14}/></div>
+                         <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center mr-3 text-gray-400"><IconClock size={18}/></div>
                          {t.time}
                       </div>
                       <div className="text-right">
@@ -348,7 +378,7 @@ const BookPage: React.FC = () => {
 
                    <div className="flex justify-between items-center">
                       <div className="flex items-center text-gray-500 text-sm">
-                         <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center mr-3 text-gray-400"><Info size={14}/></div>
+                         <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center mr-3 text-gray-400"><IconCourt size={18}/></div>
                          {t.court}
                       </div>
                       <span className="font-bold text-gray-900">{selectedVenue.courts.find(c => c.id === selectedCourt)?.name}</span>
@@ -362,17 +392,89 @@ const BookPage: React.FC = () => {
                    </div>
                 </div>
              </div>
-             
+
+             {/* Payment Methods */}
+             <div className="mb-6">
+               <h3 className="font-bold text-gray-900 mb-4 px-1">{t.paymentMethod}</h3>
+               <div className="space-y-3">
+                 {[
+                   { id: 'pix', label: t.pix, icon: IconQrCode },
+                   { id: 'credit_card', label: t.creditCard, icon: IconCreditCard },
+                   { id: 'venue', label: t.payAtVenue, icon: IconStore },
+                 ].map(method => {
+                   const MethodIcon = method.icon;
+                   return (
+                   <button 
+                     key={method.id}
+                     onClick={() => setPaymentMethod(method.id as any)}
+                     className={`w-full p-4 rounded-2xl border flex items-center justify-between transition-all ${
+                       paymentMethod === method.id 
+                         ? 'border-primary-600 bg-primary-50 ring-1 ring-primary-600 shadow-md' 
+                         : 'border-gray-100 bg-white shadow-sm hover:border-gray-300'
+                     }`}
+                   >
+                      <div className="flex items-center">
+                         <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 ${paymentMethod === method.id ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                           <MethodIcon size={20} />
+                         </div>
+                         <span className={`font-bold ${paymentMethod === method.id ? 'text-primary-900' : 'text-gray-700'}`}>{method.label}</span>
+                      </div>
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${paymentMethod === method.id ? 'border-primary-600' : 'border-gray-300'}`}>
+                         {paymentMethod === method.id && <div className="w-3 h-3 rounded-full bg-primary-600" />}
+                      </div>
+                   </button>
+                   );
+                 })}
+               </div>
+             </div>
+
+          </div>
+        )}
+      </div>
+
+      {/* FIXED FOOTER AREA for Actions */}
+      {((step === 3 && selectedSlot) || step === 4) && (
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-[60] max-w-md mx-auto">
+          
+          {step === 3 && (
+            <>
+              <div className="flex justify-between items-center mb-3 px-1">
+                  <div>
+                    <p className="text-xs text-gray-500 font-medium">{t.total}</p>
+                    <p className="text-xl font-bold text-gray-900">{formatCurrency((selectedVenue?.pricePerHour || 0) * duration)}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-gray-500 font-medium">{t.time}</p>
+                    <p className="text-sm font-bold text-gray-900">{selectedSlot} - {getEndTime(selectedSlot!, duration)}</p>
+                  </div>
+              </div>
+              <button 
+                onClick={() => setStep(4)}
+                className="w-full bg-gray-900 text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-black active:scale-[0.98] transition-all"
+              >
+                {t.reviewBooking}
+              </button>
+            </>
+          )}
+
+          {step === 4 && (
              <button 
                onClick={handleBook}
                disabled={bookingLoading}
                className="w-full py-4 bg-primary-600 text-white rounded-2xl font-bold shadow-xl shadow-primary-200 hover:shadow-primary-300 active:scale-[0.98] transition-all flex items-center justify-center text-lg"
              >
-               {bookingLoading ? t.loading : t.confirmBooking}
+               {bookingLoading 
+                  ? <IconSuccess className="animate-spin" /> // Should be loader really but user asked for success? No loading
+                  : (
+                    <span className="flex items-center">
+                       {t.pay} {formatCurrency((selectedVenue?.pricePerHour || 0) * duration)}
+                    </span>
+                  )
+               }
              </button>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

@@ -3,7 +3,11 @@ import { useLanguage, useAuth } from '../App';
 import { Api } from '../services/api';
 import { GameEvent } from '../types';
 import { SPORTS, SKILL_LABELS } from '../constants';
-import { Users, Calendar, MapPin, Search } from 'lucide-react';
+import { 
+  IconUsers, 
+  IconCalendar, 
+  IconMapPin 
+} from '../components/AppIcons';
 
 const EventsPage: React.FC = () => {
   const { t, locale } = useLanguage();
@@ -68,6 +72,7 @@ const EventsPage: React.FC = () => {
             const skillInfo = SKILL_LABELS[event.skillLevel];
             const displaySkill = locale === 'pt-BR' ? skillInfo.pt : skillInfo.en;
             const sport = SPORTS.find(s => s.id === event.sport);
+            const SportIcon = sport?.icon;
             const isHost = event.hostId === user?.id;
             const isJoined = event.joinedPlayerIds.includes(user?.id || '');
 
@@ -75,8 +80,8 @@ const EventsPage: React.FC = () => {
               <div key={event.id} className="bg-white rounded-3xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-100 hover:border-gray-200 transition-all">
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-2xl border border-gray-100">
-                      {sport?.icon}
+                    <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-2xl border border-gray-100 text-gray-700">
+                      {SportIcon && <SportIcon size={24} />}
                     </div>
                     <div>
                       <h3 className="text-lg font-bold text-gray-900 leading-tight">{event.title}</h3>
@@ -97,15 +102,15 @@ const EventsPage: React.FC = () => {
 
                 <div className="space-y-2.5 mb-5 pl-1">
                   <div className="flex items-center text-sm text-gray-600">
-                    <MapPin size={16} className="mr-3 text-gray-400" />
+                    <IconMapPin size={16} className="mr-3 text-gray-400" />
                     {event.venueName}
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
-                     <Calendar size={16} className="mr-3 text-gray-400" />
+                     <IconCalendar size={16} className="mr-3 text-gray-400" />
                      {new Date(event.date).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
-                    <Users size={16} className="mr-3 text-gray-400" />
+                    <IconUsers size={16} className="mr-3 text-gray-400" />
                     <span className="font-medium text-gray-900">{event.currentPlayers}</span>
                     <span className="text-gray-400 mx-1">/</span>
                     <span className="text-gray-500">{event.maxPlayers} {t.players}</span>

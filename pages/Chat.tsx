@@ -3,7 +3,12 @@ import { useParams, Link } from 'react-router-dom';
 import { useLanguage, useAuth } from '../App';
 import { Api } from '../services/api';
 import { ChatMessage, GameEvent } from '../types';
-import { ChevronLeft, Send, MoreVertical, Trophy } from 'lucide-react';
+import { 
+  IconChevronLeft, 
+  IconSend, 
+  IconMore, 
+  IconEvents 
+} from '../components/AppIcons';
 
 const ChatPage: React.FC = () => {
   const { eventId } = useParams<{ eventId: string }>();
@@ -58,10 +63,10 @@ const ChatPage: React.FC = () => {
       {/* Chat Header */}
       <div className="bg-white px-4 py-3 shadow-sm flex items-center justify-between sticky top-0 z-10">
          <div className="flex items-center">
-            <Link to="/events" className="p-2 -ml-2 mr-2 text-gray-600 rounded-full hover:bg-gray-100"><ChevronLeft /></Link>
+            <Link to="/events" className="p-2 -ml-2 mr-2 text-gray-600 rounded-full hover:bg-gray-100"><IconChevronLeft /></Link>
             <div className="flex items-center">
                <div className="w-10 h-10 rounded-full bg-primary-50 flex items-center justify-center mr-3 border border-primary-100">
-                  <Trophy size={18} className="text-primary-600" />
+                  <IconEvents size={20} className="text-primary-600" />
                </div>
                <div>
                   <h1 className="font-bold text-gray-900 text-sm leading-tight">{event.title}</h1>
@@ -69,7 +74,7 @@ const ChatPage: React.FC = () => {
                </div>
             </div>
          </div>
-         <button className="p-2 text-gray-400 hover:text-gray-600"><MoreVertical size={20}/></button>
+         <button className="p-2 text-gray-400 hover:text-gray-600"><IconMore size={24}/></button>
       </div>
 
       {/* Messages Area */}
@@ -124,7 +129,7 @@ const ChatPage: React.FC = () => {
            disabled={!newMessage.trim()}
            className="p-3 bg-primary-600 text-white rounded-full shadow-md hover:bg-primary-700 disabled:opacity-50 disabled:shadow-none transition-all transform active:scale-90"
          >
-           <Send size={18} />
+           <IconSend size={20} />
          </button>
       </form>
     </div>

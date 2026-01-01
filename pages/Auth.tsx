@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
 import { useLanguage, useAuth } from '../App';
 import { Api } from '../services/api';
-import { Loader2, User as UserIcon, Building2, Mail, Lock, Phone, ArrowLeft, ShieldCheck } from 'lucide-react';
+import { 
+  IconLoader, 
+  IconUser, 
+  IconBuilding, 
+  IconMail, 
+  IconLock, 
+  IconPhone, 
+  IconChevronLeft, 
+  IconShield 
+} from '../components/AppIcons';
 import { UserRole } from '../types';
 
 type AuthStep = 'form' | 'verify';
@@ -110,12 +119,12 @@ const AuthPage: React.FC = () => {
              <LanguageSwitcher />
              <div className="w-full bg-white rounded-3xl p-8 shadow-2xl text-gray-900 transition-all duration-300 relative">
                 <button onClick={() => setStep('form')} className="absolute top-6 left-6 text-gray-400 hover:text-gray-900">
-                    <ArrowLeft size={24} />
+                    <IconChevronLeft size={24} />
                 </button>
                 
                 <div className="text-center mb-6 mt-4">
                     <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4 text-primary-600">
-                        <ShieldCheck size={32} />
+                        <IconShield size={32} />
                     </div>
                     <h2 className="text-2xl font-bold text-gray-900">{t.verifyTitle}</h2>
                     <p className="text-sm text-gray-500 mt-2">{t.codeSentTo}</p>
@@ -148,7 +157,7 @@ const AuthPage: React.FC = () => {
                         disabled={loading}
                         className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 rounded-xl transition-all shadow-xl shadow-primary-200 active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100 flex justify-center items-center text-lg"
                     >
-                        {loading ? <Loader2 className="animate-spin" /> : t.verify}
+                        {loading ? <IconLoader /> : t.verify}
                     </button>
                 </form>
                 
@@ -185,7 +194,7 @@ const AuthPage: React.FC = () => {
               role === 'player' ? 'bg-white shadow-sm text-primary-600' : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            <UserIcon size={16} className="mr-2" />
+            <IconUser size={18} className="mr-2" />
             {t.player}
           </button>
           <button
@@ -195,7 +204,7 @@ const AuthPage: React.FC = () => {
               role === 'owner' ? 'bg-white shadow-sm text-primary-600' : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            <Building2 size={16} className="mr-2" />
+            <IconBuilding size={18} className="mr-2" />
             {t.courtOwner}
           </button>
         </div>
@@ -227,7 +236,9 @@ const AuthPage: React.FC = () => {
                 className="w-full px-4 py-3.5 pl-11 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none font-medium"
                 placeholder="user@example.com"
               />
-              <Mail className="absolute left-4 top-3.5 text-gray-400" size={18} />
+              <div className="absolute left-4 top-3.5 text-gray-400">
+                 <IconMail size={20} />
+              </div>
             </div>
           </div>
           
@@ -243,7 +254,9 @@ const AuthPage: React.FC = () => {
                   className="w-full px-4 py-3.5 pl-11 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none font-medium"
                   placeholder="(11) 99999-9999"
                 />
-                <Phone className="absolute left-4 top-3.5 text-gray-400" size={18} />
+                 <div className="absolute left-4 top-3.5 text-gray-400">
+                 <IconPhone size={20} />
+              </div>
               </div>
             </div>
           )}
@@ -259,7 +272,9 @@ const AuthPage: React.FC = () => {
                 className="w-full px-4 py-3.5 pl-11 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none font-medium"
                 placeholder="••••••••"
               />
-              <Lock className="absolute left-4 top-3.5 text-gray-400" size={18} />
+               <div className="absolute left-4 top-3.5 text-gray-400">
+                 <IconLock size={20} />
+              </div>
             </div>
           </div>
 
@@ -277,7 +292,9 @@ const AuthPage: React.FC = () => {
                   }`}
                   placeholder="••••••••"
                 />
-                <Lock className="absolute left-4 top-3.5 text-gray-400" size={18} />
+                 <div className="absolute left-4 top-3.5 text-gray-400">
+                 <IconLock size={20} />
+              </div>
               </div>
             </div>
           )}
@@ -293,7 +310,7 @@ const AuthPage: React.FC = () => {
             disabled={loading}
             className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 rounded-xl transition-all shadow-xl shadow-primary-200 active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100 flex justify-center items-center text-lg mt-4"
           >
-            {loading ? <Loader2 className="animate-spin" /> : (isRegistering ? t.register : t.login)}
+            {loading ? <IconLoader /> : (isRegistering ? t.register : t.login)}
           </button>
         </form>
 
