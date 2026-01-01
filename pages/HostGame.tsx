@@ -1,0 +1,182 @@
+import React, { useState } from 'react';
+import { useLanguage, useAuth } from '../App';
+import { Api } from '../services/api';
+import { SPORTS, SKILL_LABELS } from '../constants';
+import { SkillLevel, Venue } from '../types';
+import { MOCK_VENUES } from '../services/mockData';
+import { ChevronLeft, MapPin, Users, Lock, Globe, Plus, Minus } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+
+const HostGamePage: React.FC = () => {
+  const { t, locale } = useLanguage();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const [sport, setSport] = useState<string>(SPORTS[0].id);
+  const [skillLevel, setSkillLevel] = useState<SkillLevel>(SkillLevel.BEGINNER);
+  const [maxPlayers, setMaxPlayers] = useState<number>(10);
+  const [venueId, setVenueId] = useState<string>(''); // Optional
+  const [isPrivate, setIsPrivate] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    setLoading(true);
+
+    const venue = MOCK_VENUES.find(v => v.id === venueId);
+
+    await Api.hostGame({
+      title: `${SPORTS.find(s => s.id === sport)?.namePt} Game`,
+      sport,
+      skillLevel,
+      maxPlayers,
+      venueId: venue?.id,
+      venueName: venue?.name || 'TBD',
+      hostId: user.id,
+      hostName: user.name,
+      joinedPlayerIds: [user.id],
+      isPrivate,
+      date: new Date().toISOString(), // In real app, date picker
+      status: 'open',
+      currentPlayers: 1,
+    });
+    
+    setLoading(false);
+    navigate('/events');
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 pb-20">
+      <div className="bg-white px-6 py-4 sticky top-0 z-10 border-b border-gray-100 flex items-center">
+        <Link to="/" className="mr-4 p-2 -ml-2 text-gray-600 rounded-full hover:bg-gray-50 transition-colors"><ChevronLeft /></Link>
+        <h1 className="text-xl font-bold text-gray-900">{t.hostGame}</h1>
+      </div>
+
+      <form onSubmit={handleSubmit} className="p-6 space-y-8 max-w-lg mx-auto">
+        
+        {/* Sport Selection */}
+        <section>
+           <label className="block text-sm font-bold text-gray-900 mb-4">{t.sport}</label>
+           <div className="flex space-x-4 overflow-x-auto pb-2 no-scrollbar">
+             {SPORTS.map(s => (
+               <button
+                 key={s.id}
+                 type="button"
+                 onClick={() => setSport(s.id)}
+                 className={`flex-shrink-0 flex flex-col items-center justify-center w-24 h-28 rounded-2xl border-2 transition-all ${
+                   sport === s.id 
+                     ? 'border-gray-900 bg-gray-900 text-white shadow-lg' 
+                     : 'border-transparent bg-white text-gray-500 shadow-sm hover:bg-gray-50'
+                 }`}
+               >
+                 <span className="text-3xl mb-2">{s.icon}</span>
+                 <span className="text-xs font-bold">{locale === 'pt-BR' ? s.namePt : s.nameEn}</span>
+               </button>
+             ))}
+           </div>
+        </section>
+
+        {/* Skill Level */}
+        <section>
+           <label className="block text-sm font-bold text-gray-900 mb-4">{t.skillLevel}</label>
+           <div className="grid grid-cols-2 gap-3">
+             {Object.values(SkillLevel).map((level) => {
+               const info = SKILL_LABELS[level];
+               const isSelected = skillLevel === level;
+               return (
+                 <button
+                   key={level}
+                   type="button"
+                   onClick={() => setSkillLevel(level)}
+                   className={`py-3.5 px-4 rounded-xl text-sm font-bold border-2 text-left transition-all ${
+                     isSelected 
+                       ? `border-${info.color.split('-')[1]}-200 ${info.color} shadow-sm ring-1 ring-${info.color.split('-')[1]}-200` 
+                       : 'border-transparent bg-white text-gray-500 shadow-sm'
+                   }`}
+                 >
+                   {locale === 'pt-BR' ? info.pt : info.en}
+                 </button>
+               );
+             })}
+           </div>
+        </section>
+
+        {/* Players & Venue */}
+        <section className="space-y-6 bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
+           <div>
+             <label className="block text-sm font-bold text-gray-900 mb-3">{t.maxPlayers}</label>
+             <div className="flex items-center justify-between bg-gray-50 rounded-xl p-2">
+               <button 
+                 type="button" 
+                 onClick={() => setMaxPlayers(Math.max(2, maxPlayers - 1))}
+                 className="w-12 h-12 rounded-lg bg-white shadow-sm flex items-center justify-center text-gray-600 hover:text-primary-600 transition-colors"
+               >
+                 <Minus size={20} strokeWidth={3} />
+               </button>
+               <span className="text-2xl font-black text-gray-900">{maxPlayers}</span>
+               <button 
+                 type="button" 
+                 onClick={() => setMaxPlayers(Math.min(30, maxPlayers + 1))}
+                 className="w-12 h-12 rounded-lg bg-gray-900 shadow-sm flex items-center justify-center text-white transition-colors"
+               >
+                 <Plus size={20} strokeWidth={3} />
+               </button>
+             </div>
+           </div>
+
+           <div>
+             <label className="block text-sm font-bold text-gray-900 mb-3">{t.venue} <span className="text-gray-400 font-normal">(Optional)</span></label>
+             <div className="relative">
+                <select 
+                    className="w-full p-4 bg-gray-50 rounded-xl border-none outline-none focus:ring-2 focus:ring-primary-100 appearance-none text-gray-700 font-medium"
+                    value={venueId}
+                    onChange={(e) => setVenueId(e.target.value)}
+                >
+                <option value="">-- {t.selectVenue} --</option>
+                {MOCK_VENUES.map(v => (
+                    <option key={v.id} value={v.id}>{v.name}</option>
+                ))}
+                </select>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                    <MapPin size={18} />
+                </div>
+             </div>
+           </div>
+        </section>
+
+        {/* Privacy */}
+        <section>
+           <div className="flex bg-white p-1.5 rounded-2xl shadow-sm border border-gray-100">
+             <button
+               type="button"
+               onClick={() => setIsPrivate(false)}
+               className={`flex-1 py-3 rounded-xl text-sm font-bold flex items-center justify-center transition-all ${!isPrivate ? 'bg-gray-100 text-gray-900' : 'text-gray-400'}`}
+             >
+               <Globe size={16} className="mr-2" /> {t.publicGame}
+             </button>
+             <button
+               type="button"
+               onClick={() => setIsPrivate(true)}
+               className={`flex-1 py-3 rounded-xl text-sm font-bold flex items-center justify-center transition-all ${isPrivate ? 'bg-gray-100 text-gray-900' : 'text-gray-400'}`}
+             >
+               <Lock size={16} className="mr-2" /> {t.inviteOnly}
+             </button>
+           </div>
+        </section>
+
+        <div className="pt-4">
+            <button 
+            type="submit" 
+            disabled={loading}
+            className="w-full bg-primary-600 text-white font-bold py-4 rounded-2xl shadow-xl shadow-primary-200 hover:shadow-primary-300 active:scale-[0.98] transition-all text-lg"
+            >
+            {loading ? t.loading : t.createGame}
+            </button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default HostGamePage;
