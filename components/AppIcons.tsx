@@ -40,6 +40,7 @@ export const IconChevronLeft = (props: IconProps) => <MaterialIcon name="arrow_b
 export const IconArrowRight = (props: IconProps) => <MaterialIcon name="arrow_forward" {...props} />;
 export const IconTrash = (props: IconProps) => <MaterialIcon name="delete" {...props} />;
 export const IconMinus = (props: IconProps) => <MaterialIcon name="remove" {...props} />;
+export const IconShare = (props: IconProps) => <MaterialIcon name="share" {...props} />;
 
 // Feedback / State
 export const IconSuccess = (props: IconProps) => <MaterialIcon name="check_circle" {...props} />;

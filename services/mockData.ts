@@ -1,9 +1,11 @@
+
 import { Venue, GameEvent, Booking, User, SkillLevel, BookingRequest, ChatMessage } from '../types';
 
 export const MOCK_USER: User = {
   id: 'u1',
   name: 'João Silva',
   email: 'joao@example.com',
+  phoneNumber: '(11) 99999-0001',
   avatarUrl: 'https://i.pravatar.cc/150?u=u1',
   skillLevel: SkillLevel.INTERMEDIATE,
   rating: 4.5,
@@ -14,6 +16,7 @@ export const MOCK_OWNER: User = {
   id: 'o1',
   name: 'Carlos Arena',
   email: 'admin@arena.com',
+  phoneNumber: '(21) 98888-1234',
   avatarUrl: 'https://i.pravatar.cc/150?u=o1',
   skillLevel: SkillLevel.ADVANCED,
   rating: 5.0,
@@ -23,11 +26,13 @@ export const MOCK_OWNER: User = {
 export const MOCK_VENUES: Venue[] = [
   {
     id: 'v1',
+    ownerId: 'o1',
     name: 'Arena Copacabana',
     address: 'Av. Atlântica, Rio de Janeiro',
     rating: 4.8,
     imageUrl: 'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?auto=format&fit=crop&q=80&w=400',
     sports: ['football', 'beach_volleyball', 'beach_tennis'],
+    services: ['showers', 'bar'],
     pricePerHour: 150,
     distanceKm: 2.5,
     courts: [
@@ -39,11 +44,13 @@ export const MOCK_VENUES: Venue[] = [
   },
   {
     id: 'v2',
+    ownerId: 'o1',
     name: 'São Paulo Tennis Club',
     address: 'Jardins, São Paulo',
     rating: 4.9,
     imageUrl: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?auto=format&fit=crop&q=80&w=400',
     sports: ['tennis', 'badminton'],
+    services: ['parking', 'wifi', 'lockers'],
     pricePerHour: 200,
     distanceKm: 5.0,
     courts: [
@@ -54,11 +61,13 @@ export const MOCK_VENUES: Venue[] = [
   },
   {
     id: 'v3',
+    ownerId: 'o2', // Different owner
     name: 'Parque Ibirapuera Courts',
     address: 'Vila Mariana, São Paulo',
     rating: 4.2,
     imageUrl: 'https://images.unsplash.com/photo-1546519638-68e109498ee3?auto=format&fit=crop&q=80&w=400',
     sports: ['basketball', 'football', 'volleyball'],
+    services: ['parking'],
     pricePerHour: 80,
     distanceKm: 1.2,
     courts: [

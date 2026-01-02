@@ -1,3 +1,4 @@
+
 import { MOCK_VENUES, MOCK_EVENTS, MOCK_BOOKINGS, MOCK_USER, MOCK_OWNER, MOCK_REQUESTS, MOCK_MESSAGES } from './mockData';
 import { User, Venue, GameEvent, Booking, BookingRequest, ChatMessage, UserRole, SkillLevel } from '../types';
 
@@ -24,9 +25,26 @@ export const Api = {
     };
   },
 
+  updateUser: async (user: User): Promise<User> => {
+    await delay(1000);
+    // In a real app, this would update the backend
+    return user;
+  },
+
   getVenues: async (): Promise<Venue[]> => {
     await delay(800);
     return MOCK_VENUES;
+  },
+
+  getOwnerVenues: async (ownerId: string): Promise<Venue[]> => {
+    await delay(800);
+    return MOCK_VENUES.filter(v => v.ownerId === ownerId);
+  },
+
+  updateVenue: async (venue: Venue): Promise<Venue> => {
+    await delay(1000);
+    // Mock update: in reality, we'd update database
+    return venue;
   },
 
   getEvents: async (): Promise<GameEvent[]> => {

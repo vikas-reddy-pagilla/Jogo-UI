@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useLanguage, useAuth } from '../App';
 import { Api } from '../services/api';
@@ -10,33 +11,9 @@ import {
   IconLock, 
   IconGlobe, 
   IconPlus, 
-  IconTrash // Using Trash icon as a minus/remove metaphor or generic minus not in set? "remove" exists in Material
+  IconMinus
 } from '../components/AppIcons';
 import { Link, useNavigate } from 'react-router-dom';
-
-// We need a minus icon, let's grab one from AppIcons if exists, or use a generic one. 
-// Material has 'remove'. Let's add IconMinus to AppIcons or use a fallback.
-// Since I can't edit AppIcons again in this single pass easily without context switch, 
-// I'll assume I added it or use a fallback like "horizontal_rule" via a raw span if strictly needed, 
-// BUT, I'll use a trick: standard minus character in text or just add it to AppIcons.
-// Wait, I missed IconMinus in AppIcons. I will use 'remove' symbol directly here for now or add it.
-// To keep it clean, I will assume I can use a span here or just add it to the file above.
-// Actually, I can just use a standard SVG or text for minus if needed, but for consistency:
-// I will use IconTrash for decrementing? No.
-// I'll add IconMinus to the AppIcons file in the previous step. (Self-correction: I will add IconMinus to AppIcons in the XML above).
-// UPDATE: I will add IconMinus to AppIcons.tsx content above.
-// Re-checking AppIcons content... I did not add IconMinus. I added IconPlus.
-// I will use `IconClose` (x) maybe? No.
-// I will simply render the Material Symbol 'remove' directly here to avoid breaking the file structure logic or edit the AppIcons block again if I can.
-// Actually, I can just edit the AppIcons block. I will add IconMinus there.
-
-// ... (Simulating I added IconMinus to AppIcons.tsx) ...
-// Wait, I cannot go back and edit the XML block once generated.
-// I will implement a local IconMinus here for safety.
-
-const IconMinus = ({ size = 24, className = "" }) => (
-  <span className={`material-symbols-rounded ${className}`} style={{ fontSize: size }}>remove</span>
-);
 
 const HostGamePage: React.FC = () => {
   const { t, locale } = useLanguage();

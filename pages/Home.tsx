@@ -37,6 +37,13 @@ const HomePage: React.FC = () => {
     load();
   }, []);
 
+  const openMap = (e: React.MouseEvent, address: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const query = encodeURIComponent(address);
+    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+  };
+
   const filteredVenues = activeSport
     ? venues.filter(v => v.sports.includes(activeSport))
     : venues;
@@ -126,41 +133,40 @@ const HomePage: React.FC = () => {
           </div>
 
           {loading ? (
-             <div className="flex space-x-4 overflow-x-hidden">
-               {[1, 2].map(i => <div key={i} className="min-w-[280px] h-56 bg-white rounded-3xl animate-pulse" />)}
+             <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar">
+               {[1,2,3].map(i => <div key={i} className="flex-shrink-0 w-64 h-64 bg-white rounded-3xl animate-pulse" />)}
              </div>
+          ) : filteredVenues.length === 0 ? (
+             <div className="text-gray-400 text-center py-10">{t.noData}</div>
           ) : (
-            <div className="flex space-x-5 overflow-x-auto pb-6 no-scrollbar -mx-6 px-6">
+            <div className="flex space-x-5 overflow-x-auto pb-8 snap-x snap-mandatory no-scrollbar">
               {filteredVenues.map(venue => (
-                <Link to="/book" key={venue.id} className="min-w-[280px] w-[280px] bg-white rounded-3xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all active:scale-[0.98] block group">
-                  <div className="relative h-40 overflow-hidden">
-                    <img src={venue.imageUrl} alt={venue.name} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" />
-                    <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-full text-xs font-bold flex items-center shadow-sm">
-                       <IconStar size={14} filled className="text-yellow-500 mr-1" />
-                       {venue.rating}
+                <Link to="/book" key={venue.id} className="flex-shrink-0 w-72 bg-white rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-100 overflow-hidden snap-center group hover:-translate-y-1 transition-transform duration-300">
+                  <div className="h-40 w-full relative">
+                    <img src={venue.imageUrl} alt={venue.name} className="w-full h-full object-cover" />
+                    <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-bold flex items-center shadow-sm">
+                      <IconStar size={14} className="text-yellow-500 mr-1" filled /> {venue.rating}
                     </div>
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-bold text-gray-900 text-lg truncate mb-1">{venue.name}</h3>
-                    <div className="flex items-center text-gray-500 text-xs mb-3">
-                      <IconMapPin size={14} className="mr-1" />
-                      <span className="truncate">{venue.address}</span>
-                    </div>
-                    <div className="flex justify-between items-center border-t border-gray-50 pt-3">
-                        <div className="flex -space-x-1.5">
-                           {venue.sports.slice(0, 3).map(s => {
-                             const sportObj = SPORTS.find(sp => sp.id === s);
-                             const SportIcon = sportObj ? sportObj.icon : null;
-                             return (
-                               <span key={s} className="w-6 h-6 rounded-full bg-gray-50 border-2 border-white flex items-center justify-center text-[10px] shadow-sm text-gray-600">
-                                 {SportIcon && <SportIcon size={14} />}
-                               </span>
-                             )
-                           })}
-                        </div>
-                        <div className="flex flex-col text-right">
-                           <span className="text-sm font-bold text-primary-600">{formatCurrency(venue.pricePerHour)}</span>
-                        </div>
+                  <div className="p-5">
+                    <h3 className="font-bold text-gray-900 text-lg mb-1 truncate">{venue.name}</h3>
+                    
+                    {/* Clickable Address */}
+                    <button 
+                      onClick={(e) => openMap(e, venue.address)}
+                      className="flex items-center text-xs text-gray-500 mb-3 hover:text-primary-600 transition-colors text-left w-full group/map"
+                    >
+                       <IconMapPin size={16} className="mr-1 text-gray-400 group-hover/map:text-primary-600"/> 
+                       <span className="truncate underline decoration-dotted decoration-gray-300 group-hover/map:decoration-primary-400 underline-offset-2">{venue.address}</span>
+                    </button>
+
+                    <div className="flex justify-between items-center">
+                      <div className="text-xs text-gray-400 font-medium">
+                        {venue.distanceKm} {t.distance}
+                      </div>
+                      <div className="text-primary-600 font-bold">
+                        {formatCurrency(venue.pricePerHour)}<span className="text-xs text-gray-400 font-normal">{t.perHour}</span>
+                      </div>
                     </div>
                   </div>
                 </Link>
@@ -170,7 +176,7 @@ const HomePage: React.FC = () => {
         </div>
 
         {/* Open Games */}
-        <div className="pb-24">
+        <div className="mb-20">
           <div className="flex justify-between items-center mb-5 px-1">
             <h2 className="text-xl font-bold text-gray-900">{t.openGames}</h2>
             <Link to="/events" className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-primary-50 hover:text-primary-600 transition-colors">
@@ -179,60 +185,41 @@ const HomePage: React.FC = () => {
           </div>
 
           <div className="space-y-4">
-            {loading ? (
-              <div className="h-32 bg-white rounded-3xl animate-pulse" />
-            ) : filteredEvents.length === 0 ? (
-               <div className="text-center py-12 text-gray-400 bg-white rounded-3xl border border-dashed border-gray-200">
-                  <p>{t.noData}</p>
-                  <Link to="/host" className="text-primary-600 font-bold text-sm mt-3 inline-block px-4 py-2 bg-primary-50 rounded-full">{t.hostGame}</Link>
-               </div>
-            ) : (
-              filteredEvents.slice(0, 3).map(event => {
-                const skillInfo = SKILL_LABELS[event.skillLevel];
-                const displaySkill = locale === 'pt-BR' ? skillInfo.pt : skillInfo.en;
-                const sport = SPORTS.find(s => s.id === event.sport);
-                const SportIcon = sport?.icon;
-
-                return (
-                  <Link to="/events" key={event.id} className="block bg-white rounded-3xl p-5 shadow-[0_2px_15px_rgba(0,0,0,0.03)] border border-gray-50 active:scale-[0.99] transition-transform hover:border-primary-100">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-2xl border border-gray-100 text-gray-700">
-                          {SportIcon && <SportIcon size={24} />}
+             {loading ? (
+                [1,2].map(i => <div key={i} className="h-24 bg-white rounded-3xl animate-pulse" />)
+             ) : filteredEvents.length === 0 ? (
+                <div className="text-gray-400 text-center py-10">{t.noData}</div>
+             ) : (
+               filteredEvents.map(event => {
+                 const skillInfo = SKILL_LABELS[event.skillLevel];
+                 return (
+                   <Link to={`/chat/${event.id}`} key={event.id} className="block bg-white p-4 rounded-3xl shadow-[0_2px_15px_rgba(0,0,0,0.02)] border border-gray-100 flex items-center justify-between group active:scale-[0.99] transition-all">
+                      <div className="flex items-center space-x-4">
+                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl ${skillInfo.color.replace('text-', 'bg-').replace('700', '100')} ${skillInfo.color}`}>
+                           {(() => {
+                             const s = SPORTS.find(sp => sp.id === event.sport);
+                             const Ico = s?.icon;
+                             return Ico ? <Ico size={28}/> : '🏆';
+                           })()}
                         </div>
                         <div>
-                           <h3 className="font-bold text-gray-900 leading-tight">{event.title}</h3>
-                           <div className="flex items-center mt-1 space-x-2">
-                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide border ${skillInfo.color} ${skillInfo.border}`}>
-                               {displaySkill}
-                             </span>
+                           <h4 className="font-bold text-gray-900 text-sm">{event.title}</h4>
+                           <div className="flex items-center text-xs text-gray-500 mt-1">
+                              <IconUsers size={14} className="mr-1"/> 
+                              <span className="mr-3">{event.currentPlayers}/{event.maxPlayers}</span>
+                              <span className={`px-1.5 py-0.5 rounded-md text-[10px] uppercase font-bold border ${skillInfo.border} ${skillInfo.color} bg-opacity-10`}>
+                                {locale === 'pt-BR' ? skillInfo.pt : skillInfo.en}
+                              </span>
                            </div>
                         </div>
                       </div>
-                      <div className="flex flex-col items-end">
-                         <span className="text-xs font-bold text-gray-400 uppercase">{new Date(event.date).toLocaleDateString(locale, {weekday: 'short'})}</span>
-                         <span className="text-xl font-black text-gray-900">{new Date(event.date).getDate()}</span>
+                      <div className="text-gray-300 group-hover:text-primary-600 transition-colors">
+                        <IconArrowRight size={20} />
                       </div>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-50">
-                       <div className="flex items-center -space-x-2">
-                          {[...Array(Math.min(3, event.currentPlayers))].map((_, i) => (
-                             <img key={i} src={`https://i.pravatar.cc/150?u=${event.id}${i}`} className="w-6 h-6 rounded-full border-2 border-white" alt="" />
-                          ))}
-                          {event.currentPlayers > 3 && (
-                             <div className="w-6 h-6 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-[8px] font-bold text-gray-500">+{event.currentPlayers - 3}</div>
-                          )}
-                          <span className="ml-3 text-xs font-medium text-gray-500">{event.currentPlayers}/{event.maxPlayers} {t.players}</span>
-                       </div>
-                       <span className="text-xs font-bold text-primary-600 flex items-center">
-                          {new Date(event.date).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}
-                       </span>
-                    </div>
-                  </Link>
-                );
-              })
-            )}
+                   </Link>
+                 )
+               })
+             )}
           </div>
         </div>
       </div>

@@ -1,3 +1,4 @@
+
 export type Locale = 'pt-BR' | 'en';
 export type UserRole = 'player' | 'owner';
 
@@ -21,14 +22,17 @@ export interface User {
 
 export interface Venue {
   id: string;
+  ownerId?: string; // New field to link to owner
   name: string;
   address: string;
   rating: number;
   imageUrl: string;
   sports: string[];
+  services?: string[]; // New field for amenities
   pricePerHour: number;
   distanceKm: number;
   courts: Court[];
+  description?: string;
 }
 
 export interface Court {
@@ -186,4 +190,24 @@ export interface Translation {
   payAtVenue: string;
   pay: string;
   checkout: string;
+  share: string;
+  openMaps: string;
+  linkCopied: string;
+  editProfile: string;
+  personalDetails: string;
+  saveChanges: string;
+  verifyContact: string;
+  venueDetails: string;
+  venueAddress: string;
+  venueImage: string;
+  sportsOffered: string;
+  updateSuccess: string;
+  myVenues: string;
+  editVenue: string;
+  services: string;
+  parking: string;
+  wifi: string;
+  showers: string;
+  bar: string;
+  lockers: string;
 }

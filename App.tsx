@@ -21,6 +21,8 @@ import AuthPage from './pages/Auth';
 import HostGamePage from './pages/HostGame';
 import OwnerDashboardPage from './pages/OwnerDashboard';
 import ChatPage from './pages/Chat';
+import EditProfilePage from './pages/EditProfile';
+import ManageVenuesPage from './pages/ManageVenues';
 
 // --- Localization Context ---
 interface LanguageContextType {
@@ -116,6 +118,7 @@ const App: React.FC = () => {
                    <Route path="/book" element={<RequireAuth><Layout><BookPage /></Layout></RequireAuth>} />
                    <Route path="/events" element={<RequireAuth><Layout showFab><EventsPage /></Layout></RequireAuth>} />
                    <Route path="/profile" element={<RequireAuth><Layout><ProfilePage /></Layout></RequireAuth>} />
+                   <Route path="/profile/edit" element={<RequireAuth><EditProfilePage /></RequireAuth>} />
                    <Route path="/host" element={<RequireAuth><HostGamePage /></RequireAuth>} />
                    <Route path="/chat/:eventId" element={<RequireAuth><ChatPage /></RequireAuth>} />
                  </>
@@ -125,12 +128,13 @@ const App: React.FC = () => {
                {user?.role === 'owner' && (
                  <>
                    <Route path="/" element={<RequireAuth><Layout><OwnerDashboardPage /></Layout></RequireAuth>} />
-                   <Route path="/requests" element={<RequireAuth><Layout><OwnerDashboardPage /></Layout></RequireAuth>} />
+                   <Route path="/venues/manage" element={<RequireAuth><Layout><ManageVenuesPage /></Layout></RequireAuth>} />
                    <Route path="/profile" element={<RequireAuth><Layout><ProfilePage /></Layout></RequireAuth>} />
+                   <Route path="/profile/edit" element={<RequireAuth><EditProfilePage /></RequireAuth>} />
                  </>
                )}
 
-               <Route path="*" element={<Navigate to="/" />} />
+               <Route path="*" element={<Navigate to={user ? "/" : "/auth"} />} />
              </Routes>
           </div>
         </HashRouter>
@@ -141,9 +145,14 @@ const App: React.FC = () => {
 
 // --- Helper Components ---
 
-const RequireAuth: React.FC<{ children: React.ReactElement }> = ({ children }) => {
+const RequireAuth = ({ children }: { children: React.ReactElement }) => {
   const { isAuthenticated } = useAuth();
-  if (!isAuthenticated) return <Navigate to="/auth" />;
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/auth" state={{ from: location }} replace />;
+  }
+
   return children;
 };
 
@@ -156,66 +165,60 @@ const Layout: React.FC<LayoutProps> = ({ children, showFab }) => {
   const { t } = useLanguage();
   const { user } = useAuth();
   const location = useLocation();
-
-  const playerNav = [
-    { path: '/', icon: IconHome, label: t.home },
-    { path: '/book', icon: IconBook, label: t.book },
-    { path: '/events', icon: IconEvents, label: t.events },
-    { path: '/profile', icon: IconProfile, label: t.profile },
-  ];
-
-  const ownerNav = [
-    { path: '/', icon: IconDashboard, label: t.dashboard },
-    { path: '/requests', icon: IconRequests, label: t.requests },
-    { path: '/profile', icon: IconProfile, label: t.profile },
-  ];
-
-  const navItems = user?.role === 'owner' ? ownerNav : playerNav;
+  
+  const isOwner = user?.role === 'owner';
 
   return (
-    <div className="max-w-md mx-auto min-h-screen bg-white shadow-2xl relative overflow-hidden flex flex-col">
-      {/* Content Area */}
-      <main className="flex-1 overflow-y-auto pb-24 no-scrollbar bg-gray-50">
+    <>
+      <div className="min-h-screen">
         {children}
-      </main>
+      </div>
 
-      {/* Floating Action Button (Host Game) - Only for Players */}
-      {showFab && user?.role !== 'owner' && (
-        <div className="fixed bottom-24 right-6 z-40 max-w-md mx-auto pointer-events-none w-full flex justify-end pr-4 md:pr-0">
-           <Link
-             to="/host"
-             className="pointer-events-auto group bg-primary-600 text-white p-4 rounded-full shadow-xl hover:bg-primary-700 transition-all hover:scale-105 active:scale-95 flex items-center justify-center border-4 border-gray-50"
-           >
-             <IconPlusCircle size={32} />
-           </Link>
-        </div>
+      {/* Floating Action Button for Host Game (Players only) */}
+      {showFab && !isOwner && (
+        <Link 
+          to="/host"
+          className="fixed bottom-24 right-6 w-14 h-14 bg-gray-900 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-40 border-2 border-white/20"
+        >
+          <IconPlusCircle size={32} />
+        </Link>
       )}
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-50 max-w-md mx-auto pb-safe">
-        <div className="flex justify-around items-center h-16 pb-2">
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.path;
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors ${
-                  isActive ? 'text-primary-600' : 'text-gray-400 hover:text-gray-600'
-                }`}
-              >
-                <div className={`p-1 rounded-xl transition-all ${isActive ? 'bg-primary-50' : ''}`}>
-                  <Icon size={26} filled={isActive} className={isActive ? 'text-primary-600' : ''} />
-                </div>
-                <span className={`text-[10px] font-medium ${isActive ? 'font-bold' : ''}`}>{item.label}</span>
-              </Link>
-            );
-          })}
+      <nav className="fixed bottom-0 w-full bg-white border-t border-gray-100 pb-safe shadow-[0_-5px_20px_rgba(0,0,0,0.03)] z-50">
+        <div className="flex justify-around items-center h-16 md:h-20 max-w-lg mx-auto">
+          
+          {!isOwner ? (
+            <>
+              <NavLink to="/" icon={IconHome} label={t.home} active={location.pathname === '/'} />
+              <NavLink to="/book" icon={IconBook} label={t.book} active={location.pathname === '/book'} />
+              <NavLink to="/events" icon={IconEvents} label={t.events} active={location.pathname === '/events'} />
+              <NavLink to="/profile" icon={IconProfile} label={t.profile} active={location.pathname === '/profile'} />
+            </>
+          ) : (
+            <>
+              <NavLink to="/" icon={IconDashboard} label={t.dashboard} active={location.pathname === '/'} />
+              <NavLink to="/venues/manage" icon={IconRequests} label="Venues" active={location.pathname === '/venues/manage'} />
+              <NavLink to="/profile" icon={IconProfile} label={t.profile} active={location.pathname === '/profile'} />
+            </>
+          )}
+
         </div>
       </nav>
-    </div>
+    </>
   );
 };
+
+const NavLink = ({ to, icon: Icon, label, active }: { to: string, icon: any, label: string, active: boolean }) => (
+  <Link to={to} className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-all ${active ? 'text-primary-600' : 'text-gray-400 hover:text-gray-600'}`}>
+    <div className={`relative p-1.5 rounded-xl transition-all ${active ? 'bg-primary-50 transform -translate-y-1' : ''}`}>
+      <Icon size={24} filled={active} />
+      {active && <span className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-primary-600 rounded-full"></span>}
+    </div>
+    <span className={`text-[10px] font-bold ${active ? 'opacity-100' : 'opacity-0 scale-0'} transition-all duration-300 origin-top`}>
+      {label}
+    </span>
+  </Link>
+);
 
 export default App;

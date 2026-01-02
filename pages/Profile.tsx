@@ -1,4 +1,6 @@
+
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useLanguage, useAuth } from '../App';
 import LanguageToggle from '../components/LanguageToggle';
 import { SKILL_LABELS } from '../constants';
@@ -7,7 +9,8 @@ import {
   IconStar, 
   IconSettings,
   IconCalendar,
-  IconEvents
+  IconEvents,
+  IconEdit
 } from '../components/AppIcons';
 
 const ProfilePage: React.FC = () => {
@@ -26,7 +29,7 @@ const ProfilePage: React.FC = () => {
          <div className="absolute top-0 left-0 w-full h-24 bg-primary-600 z-0"></div>
          
          <div className="relative z-10 flex flex-col items-center mt-8">
-            <div className="relative mb-3">
+            <div className="relative mb-3 group">
               <img
                 src={user.avatarUrl}
                 alt={user.name}
@@ -36,7 +39,14 @@ const ProfilePage: React.FC = () => {
                 {skillLabel}
               </div>
             </div>
-            <h1 className="text-xl font-bold text-gray-900">{user.name}</h1>
+            
+            <div className="flex items-center space-x-2 mb-1">
+              <h1 className="text-xl font-bold text-gray-900">{user.name}</h1>
+              <Link to="/profile/edit" className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-colors">
+                <IconEdit size={16} />
+              </Link>
+            </div>
+            
             <p className="text-gray-500 text-sm mb-4">{user.email}</p>
 
             <div className="flex items-center space-x-2 bg-yellow-50 border border-yellow-100 text-yellow-800 px-4 py-1.5 rounded-full text-sm font-bold">
@@ -78,6 +88,19 @@ const ProfilePage: React.FC = () => {
               <LanguageToggle />
            </div>
         </div>
+
+        {/* Edit Profile Link (Mobile Friendly Extra Option) */}
+        <Link 
+          to="/profile/edit"
+          className="w-full flex items-center justify-between p-4 bg-white border border-gray-100 rounded-2xl shadow-sm hover:border-primary-200 group"
+        >
+           <div className="flex items-center space-x-3">
+              <div className="bg-primary-50 p-2 rounded-lg text-primary-600 group-hover:bg-primary-600 group-hover:text-white transition-colors">
+                <IconEdit size={20} />
+              </div>
+              <span className="font-bold text-gray-700">{t.editProfile}</span>
+           </div>
+        </Link>
 
         {/* Logout */}
         <button

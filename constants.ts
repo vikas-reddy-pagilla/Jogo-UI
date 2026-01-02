@@ -1,3 +1,4 @@
+
 import { Locale, Translation, SkillLevel } from './types';
 import { 
   IconFootball, 
@@ -106,6 +107,26 @@ export const TRANSLATIONS: Record<Locale, Translation> = {
     payAtVenue: 'Pagar no Local',
     pay: 'Pagar',
     checkout: 'Checkout',
+    share: 'Compartilhar',
+    openMaps: 'Abrir no Maps',
+    linkCopied: 'Link copiado!',
+    editProfile: 'Editar Perfil',
+    personalDetails: 'Dados Pessoais',
+    saveChanges: 'Salvar Alterações',
+    verifyContact: 'Verificar Contato',
+    venueDetails: 'Detalhes do Local',
+    venueAddress: 'Endereço',
+    venueImage: 'Foto (URL)',
+    sportsOffered: 'Esportes Oferecidos',
+    updateSuccess: 'Atualizado com sucesso!',
+    myVenues: 'Meus Locais',
+    editVenue: 'Editar Local',
+    services: 'Comodidades',
+    parking: 'Estacionamento',
+    wifi: 'Wi-Fi Grátis',
+    showers: 'Vestiários/Chuveiros',
+    bar: 'Bar/Lanchonete',
+    lockers: 'Armários',
   },
   'en': {
     welcome: 'Welcome to Jogo',
@@ -203,6 +224,26 @@ export const TRANSLATIONS: Record<Locale, Translation> = {
     payAtVenue: 'Pay at Venue',
     pay: 'Pay',
     checkout: 'Checkout',
+    share: 'Share',
+    openMaps: 'Open Maps',
+    linkCopied: 'Link copied!',
+    editProfile: 'Edit Profile',
+    personalDetails: 'Personal Details',
+    saveChanges: 'Save Changes',
+    verifyContact: 'Verify Contact',
+    venueDetails: 'Venue Details',
+    venueAddress: 'Address',
+    venueImage: 'Photo (URL)',
+    sportsOffered: 'Sports Offered',
+    updateSuccess: 'Updated successfully!',
+    myVenues: 'My Venues',
+    editVenue: 'Edit Venue',
+    services: 'Amenities',
+    parking: 'Parking',
+    wifi: 'Free Wi-Fi',
+    showers: 'Showers/Lockers',
+    bar: 'Bar/Snacks',
+    lockers: 'Lockers',
   }
 };
 
@@ -213,12 +254,19 @@ export const SPORTS = [
   { id: 'volleyball', namePt: 'Vôlei', nameEn: 'Volleyball', icon: IconVolleyball },
   { id: 'badminton', namePt: 'Badminton', nameEn: 'Badminton', icon: IconBadminton },
   { id: 'beach_tennis', namePt: 'Beach Tennis', nameEn: 'Beach Tennis', icon: IconBeachTennis },
-  { id: 'beach_volleyball', namePt: 'Vôlei de Praia', nameEn: 'Beach Volleyball', icon: IconVolleyball },
 ];
 
-export const SKILL_LABELS: Record<SkillLevel, { pt: string; en: string; color: string; border: string }> = {
-  [SkillLevel.BEGINNER]: { pt: 'Iniciante', en: 'Beginner', color: 'bg-emerald-50 text-emerald-700', border: 'border-emerald-200' },
-  [SkillLevel.INTERMEDIATE]: { pt: 'Intermediário', en: 'Intermediate', color: 'bg-blue-50 text-blue-700', border: 'border-blue-200' },
-  [SkillLevel.ADVANCED]: { pt: 'Avançado', en: 'Advanced', color: 'bg-indigo-50 text-indigo-700', border: 'border-indigo-200' },
-  [SkillLevel.PRO]: { pt: 'Profissional', en: 'Pro', color: 'bg-purple-50 text-purple-700', border: 'border-purple-200' },
+export const VENUE_SERVICES = [
+  { id: 'parking', icon: 'local_parking' },
+  { id: 'wifi', icon: 'wifi' },
+  { id: 'showers', icon: 'shower' },
+  { id: 'bar', icon: 'local_bar' },
+  { id: 'lockers', icon: 'lock' },
+];
+
+export const SKILL_LABELS = {
+  [SkillLevel.BEGINNER]: { pt: 'Iniciante', en: 'Beginner', color: 'text-green-700', border: 'border-green-200' },
+  [SkillLevel.INTERMEDIATE]: { pt: 'Intermediário', en: 'Intermediate', color: 'text-blue-700', border: 'border-blue-200' },
+  [SkillLevel.ADVANCED]: { pt: 'Avançado', en: 'Advanced', color: 'text-purple-700', border: 'border-purple-200' },
+  [SkillLevel.PRO]: { pt: 'Profissional', en: 'Pro', color: 'text-orange-700', border: 'border-orange-200' },
 };

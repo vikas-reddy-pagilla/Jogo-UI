@@ -6,7 +6,8 @@ import { SPORTS, SKILL_LABELS } from '../constants';
 import { 
   IconUsers, 
   IconCalendar, 
-  IconMapPin 
+  IconMapPin,
+  IconShare
 } from '../components/AppIcons';
 
 const EventsPage: React.FC = () => {
@@ -15,6 +16,7 @@ const EventsPage: React.FC = () => {
   const [events, setEvents] = useState<GameEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'discover' | 'my_games'>('discover');
+  const [toastMessage, setToastMessage] = useState('');
 
   useEffect(() => {
     const load = async () => {
@@ -32,8 +34,47 @@ const EventsPage: React.FC = () => {
     ? events.filter(e => e.status === 'open')
     : events.filter(e => e.joinedPlayerIds.includes(user?.id || '') || e.hostId === user?.id);
 
+  const openMap = (address: string) => {
+    const query = encodeURIComponent(address);
+    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+  };
+
+  const handleShare = async (e: React.MouseEvent, event: GameEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const shareData = {
+      title: event.title,
+      text: `${locale === 'pt-BR' ? 'Vamos jogar!' : 'Let\'s play!'} ${event.title} @ ${event.venueName}`,
+      url: window.location.href // In a real app, this would be `https://jogo.app/events/${event.id}`
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error('Error sharing:', err);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(`${shareData.text} - ${shareData.url}`);
+        setToastMessage(t.linkCopied);
+        setTimeout(() => setToastMessage(''), 2000);
+      } catch (err) {
+        console.error('Failed to copy', err);
+      }
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
+    <div className="min-h-screen bg-gray-50 pb-24 relative">
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg z-50 animate-in fade-in slide-in-from-top-2">
+           {toastMessage}
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-white px-6 py-4 sticky top-0 z-10 shadow-sm border-b border-gray-100">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">{t.events}</h1>
@@ -77,7 +118,7 @@ const EventsPage: React.FC = () => {
             const isJoined = event.joinedPlayerIds.includes(user?.id || '');
 
             return (
-              <div key={event.id} className="bg-white rounded-3xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-100 hover:border-gray-200 transition-all">
+              <div key={event.id} className="bg-white rounded-3xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-100 hover:border-gray-200 transition-all group">
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-2xl border border-gray-100 text-gray-700">
@@ -90,24 +131,28 @@ const EventsPage: React.FC = () => {
                       </span>
                     </div>
                   </div>
-                  <div className="flex flex-col items-center bg-gray-50 px-3 py-1.5 rounded-xl border border-gray-100">
-                     <span className="text-[10px] text-gray-400 uppercase font-black">
-                       {new Date(event.date).toLocaleDateString(locale, { month: 'short' })}
-                     </span>
-                     <span className="text-xl font-black text-gray-900 leading-none">
-                       {new Date(event.date).getDate()}
-                     </span>
+                  <div className="flex flex-col items-end space-y-2">
+                     <button 
+                       onClick={(e) => handleShare(e, event)} 
+                       className="p-2 -mr-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-all"
+                       title={t.share}
+                     >
+                       <IconShare size={20} />
+                     </button>
                   </div>
                 </div>
 
                 <div className="space-y-2.5 mb-5 pl-1">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <IconMapPin size={16} className="mr-3 text-gray-400" />
-                    {event.venueName}
-                  </div>
+                  <button 
+                    onClick={() => openMap(event.venueName)}
+                    className="flex items-center text-sm text-gray-600 hover:text-primary-600 transition-colors text-left w-full group/map"
+                  >
+                    <IconMapPin size={16} className="mr-3 text-gray-400 group-hover/map:text-primary-600" />
+                    <span className="underline decoration-dotted decoration-gray-300 group-hover/map:decoration-primary-400 underline-offset-4">{event.venueName}</span>
+                  </button>
                   <div className="flex items-center text-sm text-gray-600">
                      <IconCalendar size={16} className="mr-3 text-gray-400" />
-                     {new Date(event.date).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}
+                     {new Date(event.date).toLocaleDateString(locale, {weekday: 'short', month: 'numeric', day: 'numeric'})} • {new Date(event.date).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <IconUsers size={16} className="mr-3 text-gray-400" />
